@@ -1,0 +1,25 @@
+{
+  "name": "exampledynamoskill",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "dependencies": {
+    "ask-sdk": "^2.1.0",
+    "aws-sdk": "^2.334.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/HavocFestival/ExampleDynamoSkill.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/HavocFestival/ExampleDynamoSkill/issues"
+  },
+  "homepage": "https://github.com/HavocFestival/ExampleDynamoSkill#readme"
+}
