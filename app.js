@@ -1,6 +1,7 @@
 const Alexa = require('ask-sdk');
 const AWS = require('aws-sdk');
-const SKILL_NAME = 'Space Fact';
+const request = require('request');
+
 const HELP_MESSAGE = 'You can say tell me a space fact, or, you can say exit... What can I help you with?';
 const HELP_REPROMPT = 'What can I help you with?';
 const STOP_MESSAGE = 'Goodbye!';
@@ -14,9 +15,8 @@ var dynamoDb = new AWS.DynamoDB.DocumentClient();
 const GetNewFactHandler = {
     canHandle(handlerInput) {
         const request = handlerInput.requestEnvelope.request;
-        return request.type === 'LaunchRequest' ||
-            (request.type === 'IntentRequest' &&
-                request.intent.name === 'DefineItemIntent');
+        return request.type === 'IntentRequest'
+            && request.intent.name === 'DefineItemIntent';
     },
     async handle(handlerInput) {
         const userInput = handlerInput.requestEnvelope.request.intent.slots.itemslot.value;
@@ -27,7 +27,6 @@ const GetNewFactHandler = {
             TableName: 'ExampleDynamoTable',
             Key: { "ItemCode": userInput }
         };
-
 
         console.log("Enter handler");
         console.log(dataParams);
@@ -47,6 +46,35 @@ const GetNewFactHandler = {
             .getResponse();
     }
 };
+
+const GetAPIExample = {
+    canHandle(handlerInput) {
+        const request = handlerInput.requestEnvelope.request;
+        return request.type === 'IntentRequest'
+            && request.intent.name === 'UseAPIIntent';
+    },
+    async handle(handlerInput) {
+        console.log("start handler");
+        let res = await doRequest('https://api.nasa.gov/planetary/apod?api_key=DEMO_KEY');
+        console.log(res);
+
+        return handlerInput.responseBuilder
+        .speak(res.explanation)
+        .getResponse();
+    }
+};
+
+function doRequest(url) {
+    return new Promise(function (resolve, reject) {
+      request(url, {json: true}, function (error, res, body) {
+        if (!error && res.statusCode == 200) {
+          resolve(body);
+        } else {
+          reject(error);
+        }
+      });
+    });
+}
 
 const HelpHandler = {
     canHandle(handlerInput) {
@@ -105,6 +133,7 @@ const ErrorHandler = {
 exports.handler = skillBuilder
     .addRequestHandlers(
         GetNewFactHandler,
+        GetAPIExample,
         HelpHandler,
         ExitHandler,
         SessionEndedRequestHandler
