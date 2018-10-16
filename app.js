@@ -1,6 +1,7 @@
 const Alexa = require('ask-sdk');
 const AWS = require('aws-sdk');
-const SKILL_NAME = 'Space Fact';
+const request = require('request');
+
 const HELP_MESSAGE = 'You can say tell me a space fact, or, you can say exit... What can I help you with?';
 const HELP_REPROMPT = 'What can I help you with?';
 const STOP_MESSAGE = 'Goodbye!';
@@ -13,9 +14,8 @@ var dynamoDb = new AWS.DynamoDB.DocumentClient();
 const GetNewFactHandler = {
     canHandle(handlerInput) {
         const request = handlerInput.requestEnvelope.request;
-        return request.type === 'LaunchRequest' ||
-            (request.type === 'IntentRequest' &&
-                request.intent.name === 'DefineItemIntent');
+        return request.type === 'IntentRequest'
+            && request.intent.name === 'DefineItemIntent';
     },
     async handle(handlerInput) {
         const userInput = handlerInput.requestEnvelope.request.intent.slots.itemslot.value;
@@ -24,7 +24,6 @@ const GetNewFactHandler = {
             TableName: 'ExampleDynamoTable',
             Key: { "ItemCode": "BUI" }
         };
-
 
         console.log("Enter handler");
         console.log(dataParams);
@@ -42,6 +41,25 @@ const GetNewFactHandler = {
         return handlerInput.responseBuilder
             .speak(speechOutput)
             .getResponse();
+    }
+};
+
+const GetAPIExample = {
+    canHandle(handlerInput) {
+        const request = handlerInput.requestEnvelope.request;
+        return request.type === 'IntentRequest'
+            && request.intent.name === 'UseAPIIntent';
+    },
+    async handle(handlerInput) {
+        await request('https://api.nasa.gov/planetary/apod?api_key=DEMO_KEY', { json: true }, (err, res, body) => {
+            if (err) { return console.log(err); }
+            console.log(body.url);
+            console.log(body.explanation);
+
+            return handlerInput.responseBuilder
+            .speak(body.explanation)
+            .getResponse();
+        });
     }
 };
 
@@ -102,6 +120,7 @@ const ErrorHandler = {
 exports.handler = skillBuilder
     .addRequestHandlers(
         GetNewFactHandler,
+        GetAPIExample,
         HelpHandler,
         ExitHandler,
         SessionEndedRequestHandler
