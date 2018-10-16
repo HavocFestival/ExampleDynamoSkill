@@ -10,6 +10,7 @@ const skillBuilder = Alexa.SkillBuilders.standard();
 AWS.config.update({ region: 'us-east-1' });
 var dynamoDb = new AWS.DynamoDB.DocumentClient();
 
+//start reviewing from here for DB pull of info.
 const GetNewFactHandler = {
     canHandle(handlerInput) {
         const request = handlerInput.requestEnvelope.request;
@@ -20,9 +21,11 @@ const GetNewFactHandler = {
     async handle(handlerInput) {
         const userInput = handlerInput.requestEnvelope.request.intent.slots.itemslot.value;
         console.log(userInput);
+        String(userInput);
+
         var dataParams = {
             TableName: 'ExampleDynamoTable',
-            Key: { "ItemCode": "BUI" }
+            Key: { "ItemCode": userInput }
         };
 
 
