@@ -50,20 +50,28 @@ const GetAPIExample = {
         return request.type === 'IntentRequest'
             && request.intent.name === 'UseAPIIntent';
     },
-    handle(handlerInput) {
+    async handle(handlerInput) {
         console.log("start handler");
+        let res = await doRequest('https://api.nasa.gov/planetary/apod?api_key=DEMO_KEY');
+        console.log(res);
 
-        request('https://api.nasa.gov/planetary/apod?api_key=DEMO_KEY', { json: true }, (err, res, body) => {
-            if (err) { return console.log(err); }
-            console.log(body.url);
-            console.log(body.explanation);
-
-            return handlerInput.responseBuilder
-            .speak(body.explanation)
-            .getResponse();
-        });
+        return handlerInput.responseBuilder
+        .speak(res.explanation)
+        .getResponse();
     }
 };
+
+function doRequest(url) {
+    return new Promise(function (resolve, reject) {
+      request(url, {json: true}, function (error, res, body) {
+        if (!error && res.statusCode == 200) {
+          resolve(body);
+        } else {
+          reject(error);
+        }
+      });
+    });
+}
 
 const HelpHandler = {
     canHandle(handlerInput) {
