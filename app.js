@@ -19,11 +19,12 @@ const GetNewFactHandler = {
             && request.intent.name === 'DefineItemIntent';
     },
     async handle(handlerInput) {
-        const userInput = handlerInput.requestEnvelope.request.intent.slots.itemslot.value;
+        let userInput = handlerInput.requestEnvelope.request.intent.slots.itemslot.value;
+        userInput = userInput.toLowerCase();
         console.log(userInput);
-        String(userInput);
+        //String(userInput);
 
-        var dataParams = {
+        let dataParams = {
             TableName: 'ExampleDynamoTable',
             Key: { "ItemCode": userInput }
         };
@@ -31,9 +32,7 @@ const GetNewFactHandler = {
         console.log("Enter handler");
         console.log(dataParams);
 
-        dataParams.ItemCode = "DUI";
-
-        var speechOutput = await dynamoDb.get(dataParams).promise();
+        let speechOutput = await dynamoDb.get(dataParams).promise();
 
         console.log(speechOutput);
         console.log(speechOutput.Item);
